@@ -15,14 +15,12 @@
 
     const APPLET_URL = 'http://localhost:33333/set-messenger-icon';
     const CHECK_INTERVAL = 2000; // Check every 2 seconds
-    const DEBOUNCE_DELAY = 3000; // Wait 3 seconds before changing to "read" status
 
     // Caprine's selector for the Chats icon - contains unread count in aria-label
-    // This count excludes muted conversations (same as title)
+    // This count excludes muted conversations
     const CHATS_ICON_SELECTOR = '[class*="x9f619"][class*="x1n2onr6"][class*="x1ja2u2z"] a[aria-label]';
 
     let lastStatus = null;
-    let pendingReadTimeout = null;
 
     function getUnreadFromChatsIcon() {
         // Method used by Caprine: check aria-label on icons in the left sidebar
@@ -91,33 +89,10 @@
     function updateApplet(status) {
         const newStatus = status.hasUnread ? 'unread' : 'read';
 
-        if (newStatus === 'unread') {
-            // Cancel any pending "read" status change
-            if (pendingReadTimeout) {
-                clearTimeout(pendingReadTimeout);
-                pendingReadTimeout = null;
-            }
-
-            // Immediately update to unread if not already
-            if (lastStatus !== 'unread') {
-                lastStatus = 'unread';
-                sendStatusToApplet('unread');
-            }
-        } else {
-            // For "read" status, debounce to avoid flickering
-            if (lastStatus === 'unread' && !pendingReadTimeout) {
-                pendingReadTimeout = setTimeout(() => {
-                    const currentStatus = getUnreadStatus();
-                    if (!currentStatus.hasUnread) {
-                        lastStatus = 'read';
-                        sendStatusToApplet('read');
-                    }
-                    pendingReadTimeout = null;
-                }, DEBOUNCE_DELAY);
-            } else if (lastStatus === null) {
-                lastStatus = 'read';
-                sendStatusToApplet('read');
-            }
+        // Only send if status changed
+        if (newStatus !== lastStatus) {
+            lastStatus = newStatus;
+            sendStatusToApplet(newStatus);
         }
     }
 
