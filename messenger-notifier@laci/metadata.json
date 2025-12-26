@@ -1,0 +1,9 @@
+{
+    "uuid": "messenger-notifier@laci",
+    "name": "Messenger Notifier",
+    "description": "Shows Facebook Messenger notification status with a tray icon. Exposes a REST API on port 33333 to control read/unread state.",
+    "version": "1.0.0",
+    "cinnamon-version": ["5.0", "5.2", "5.4", "5.6", "5.8", "6.0"],
+    "max-instances": 1,
+    "icon": "messenger-colored"
+}
